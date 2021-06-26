@@ -2,6 +2,7 @@ const express = require("express");
 const hbs = require("express-handlebars");
 const cookieParser = require("cookie-parser");
 const authMidleware = require("../midllewares/auth");
+//to add storageMiddleware
 
 module.exports = (app) => {
   app.engine("hbs", hbs({ extname: ".hbs" }));

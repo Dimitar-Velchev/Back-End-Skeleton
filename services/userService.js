@@ -4,7 +4,7 @@ async function createUser(username, hashedPassword) {
   const user = new User({
     username,
     hashedPassword,
-    //to change later
+    //to change later if email?
   });
 
   await user.save();
@@ -19,7 +19,7 @@ async function getUserByUsername(username){
     return user;
 }
 
-// to add more functions
+// to add more functions (getUserByEmail)
 
 module.exports = {
     createUser,

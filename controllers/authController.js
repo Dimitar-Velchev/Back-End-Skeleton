@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { body, validationResult } = require("express-validator");
-const { isGuest } = require('../midllewares/guards');
+const { isGuest } = require("../midllewares/guards");
 
 router.get("/register", isGuest(), (req, res) => {
   res.render("register");
@@ -11,6 +11,7 @@ router.post(
   isGuest(),
   body("username")
     .isLength({ min: 3 })
+    .isAlphanumerical()
     .withMessage("Username must be at least 3 characters."), // TO change
   body("rePass").custom((value, { req }) => {
     if (value !== req.body.password) {
@@ -22,17 +23,19 @@ router.post(
     const { errors } = validationResult(req);
     try {
       if (errors.length > 0) {
-        //to change 
-        throw new Error("Validation error");
+        throw new Error(
+          Object.values(errors)
+            .map((e) => e.msg)
+            .join("\n")
+        );
       }
       await req.auth.register(req.body.username, req.body.password);
 
-      res.redirect("/"); //to change 
-
+      res.redirect("/"); //to change
     } catch (err) {
       console.log(err.message);
       const ctx = {
-        errors,
+        errors: err.message.split("\n"),
         userData: {
           username: req.body.username,
         },
@@ -48,17 +51,17 @@ router.get("/login", isGuest(), (req, res) => {
 
 router.post("/login", isGuest(), async (req, res) => {
   try {
-
     await req.auth.login(req.body.username, req.body.password);
 
     res.redirect("/"); //change
-
   } catch (err) {
-
     console.log(err.message);
-    
+    let errors = err.message;
+    if (errors == "No such user" || errors == "Incorrect pasword") {
+      errors = ["Incorrect username or password"];
+    }
     const ctx = {
-      errors: [err.message],
+      errors,
       userData: {
         username: req.body.username,
       },
